@@ -1,0 +1,34 @@
+$background-color: #c75367;
+$primary-color: #4ad295;
+$font-color: #edf2f5;
+$secondary-color: #06121e;
+
+$regular: 400;
+$medium: 500;
+$bold: 700;
+
+$animation: fadeInAnimation 1s;
+
+@keyframes fadeInAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes App-logo-float {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
