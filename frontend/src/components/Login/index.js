@@ -5,6 +5,7 @@ import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogin } from "../../store/modules/auth/reducers";
 import { unwrapResult } from "@reduxjs/toolkit";
+import AuthLinks from "../AuthLinks";
 
 const Login = () => {
   const [password, setPassword] = useState("");
@@ -51,16 +52,13 @@ const Login = () => {
             ></input>
           </div>
           <div>
-            <button type="submit" disabled={!canSubmit}>
+            <button className="button" type="submit" disabled={!canSubmit}>
               {isAuthenticating ? "loading.." : "Login"}
             </button>
           </div>
         </form>
 
-        {/* TODO: Use Link/NavLink  */}
-        <NavLink to="/register">Register</NavLink>
-        <NavLink to="/login">Login</NavLink>
-        <NavLink to="/guest">Play As Guest</NavLink>
+        <AuthLinks />
       </Container>
     </div>
   );

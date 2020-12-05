@@ -1,0 +1,24 @@
+.lobby {
+  //   height: 200px;
+  width: 500px;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  border: 2px solid gray;
+  margin-bottom: 20px;
+}
+
+h3 {
+  margin: 0;
+  text-align: center;
+}
+
+.game_options {
+  background-color: rgba(58, 40, 46, 0.548);
+  overflow: hidden;
+  & > div {
+    margin: 20px;
+  }
+  label {
+    padding-right: 10px;
+  }
+}

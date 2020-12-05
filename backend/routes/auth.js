@@ -42,6 +42,11 @@ Router.post("/login", (req, res) => {
             message: "Invalid Password!",
           });
         }
+      } else {
+        res.status(404).send({
+          success: false,
+          message: "User not found.",
+        });
       }
     })
     .catch((err) => {
@@ -63,6 +68,7 @@ Router.post("/register", (req, res) => {
         username,
         email,
         password: hashedPassword,
+        isGuest: false,
       });
       newUser
         .save()
@@ -78,7 +84,6 @@ Router.post("/register", (req, res) => {
               expiresIn: 60 * 60 * 24, // expires in 24 hours
             }
           );
-          // TODO: Return access token and user object
           res.status(200).json({
             success: true,
             data: {
@@ -110,15 +115,14 @@ Router.post("/register", (req, res) => {
 Router.post("/guest", (req, res) => {
   const { username } = req.body;
 
-  // TODO: Create a new Guest
-  const newGuestUser = new GuestUser({
+  const newGuestUser = new User({
     username,
+    isGuest: true,
   });
 
   newGuestUser
     .save()
     .then((user) => {
-      // TODO: Create JWT token (username,userid in payload)
       const accessToken = jwt.sign(
         {
           sub: user.id,
@@ -130,7 +134,6 @@ Router.post("/guest", (req, res) => {
           expiresIn: 60 * 60 * 24, // expires in 24 hours
         }
       );
-      // TODO: Return access token and user object
       res.status(200).json({
         success: true,
         data: {
@@ -152,59 +155,40 @@ Router.post("/guest", (req, res) => {
     });
 });
 
-Router.post("/populateUser", async (req, res) => {
+Router.get("/populateUser", verifyToken, async (req, res) => {
   try {
-    var { accessToken } = req.body;
-
-    jwt.verify(accessToken, process.env.JWT_SECRET, async (err, payload) => {
-      if (err) {
-        return res.status(401).json({
-          success: false,
-          message: "Please Register/Login to play the game!",
-        });
-      } else {
-        const { isGuest, sub, user } = payload;
-        if (isGuest) {
-          const guestUser = await GuestUser.findById(sub);
-          if (guestUser) {
-            res.status(200).send({
-              success: true,
-              data: {
-                user: {
-                  id: guestUser.id,
-                  username: guestUser.username,
-                },
-              },
-              message: "User details sent.",
-            });
-          } else {
-            res.status(404).send({
-              success: false,
-              message: "User not found.",
-            });
-          }
-        } else {
-          const registeredUser = await User.findById(sub);
-          if (registeredUser) {
-            res.status(200).send({
-              success: true,
-              data: {
-                user: {
-                  id: registeredUser.id,
-                  username: registeredUser.username,
-                },
-              },
-              message: "User details sent.",
-            });
-          } else {
-            res.status(404).send({
-              success: false,
-              message: "User not found.",
-            });
-          }
+    const { isGuest, userID, user } = req;
+    const currentUser = await User.findById(userID);
+    if (currentUser) {
+      const accessToken = jwt.sign(
+        {
+          sub: userID,
+          user,
+          isGuest,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: 60 * 60 * 24, // expires in 24 hours
         }
-      }
-    });
+      );
+      res.status(200).send({
+        success: true,
+        data: {
+          user: {
+            id: currentUser.id,
+            username: currentUser.username,
+            isGuest: currentUser.isGuest,
+          },
+          accessToken,
+        },
+        message: "User details sent.",
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: "User not found.",
+      });
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({
@@ -213,4 +197,19 @@ Router.post("/populateUser", async (req, res) => {
     });
   }
 });
+
+// TEMPORARY ROUTE TO DELETE ALL USERS
+
+Router.delete("/deleteAll", async (req, res) => {
+  try {
+    const response = await User.deleteMany({});
+    res.send(response);
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+});
+
 module.exports = Router;

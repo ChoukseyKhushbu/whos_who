@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import Container from "../Container";
-import { NavLink } from "react-router-dom";
-import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getError, register } from "../../store/modules/auth/reducers";
 import { unwrapResult } from "@reduxjs/toolkit";
+import AuthLinks from "../AuthLinks";
 
 const Register = () => {
   const [password, setPassword] = useState("");
@@ -64,16 +63,13 @@ const Register = () => {
             ></input>
           </div>
           <div>
-            <button type="submit" disabled={!canSubmit}>
+            <button type="submit" disabled={!canSubmit} className="button">
               {isAuthenticating ? "loading.." : "Register"}
             </button>
           </div>
         </form>
 
-        {/* TODO: Use Link/NavLink  */}
-        <NavLink to="/register">Register</NavLink>
-        <NavLink to="/login">Login</NavLink>
-        <NavLink to="/guest">Play As Guest</NavLink>
+        <AuthLinks />
 
         <br />
         <br />

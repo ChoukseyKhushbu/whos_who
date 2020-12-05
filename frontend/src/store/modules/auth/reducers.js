@@ -1,42 +1,28 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import {
+  loginAPI,
+  registerAPI,
+  populateUserAPI,
+  guestAPI,
+} from "../../../API/auth";
 
-// TODO: Hit auth/guest
-
-export const populateUser = createAsyncThunk(
-  "auth/populateUser",
-  async ({ accessToken }) => {
-    const response = await axios.post(
-      "http://localhost:5555/auth/populateUser",
-      {
-        accessToken,
-      }
-    );
-    return response.data;
-  }
-);
+export const populateUser = createAsyncThunk("auth/populateUser", async () => {
+  const response = await populateUserAPI();
+  return response.data;
+});
 
 export const guestLogin = createAsyncThunk(
   "auth/guestLogin",
   async ({ username }) => {
-    try {
-      const response = await axios.post("http://localhost:5555/auth/guest", {
-        username: username,
-      });
-      return response.data;
-    } catch (error) {
-      return error;
-    }
+    const response = await guestAPI({ username });
+    return response.data;
   }
 );
 
 export const userLogin = createAsyncThunk(
   "auth/userLogin",
   async ({ email, password }) => {
-    const response = await axios.post("http://localhost:5555/auth/login", {
-      email: email,
-      password: password,
-    });
+    const response = await loginAPI({ email, password });
     return response.data;
   }
 );
@@ -44,11 +30,7 @@ export const userLogin = createAsyncThunk(
 export const register = createAsyncThunk(
   "auth/register",
   async ({ username, email, password }) => {
-    const response = await axios.post("http://localhost:5555/auth/register", {
-      username: username,
-      email: email,
-      password: password,
-    });
+    const response = await registerAPI({ username, email, password });
     return response.data;
   }
 );
@@ -60,10 +42,9 @@ export const authSlice = createSlice({
     accessToken: null,
     isAuthenticating: false,
     errors: null,
-    isPopulating: false,
   },
   reducers: {
-    GuestLogout: (state, action) => {
+    logout: (state, action) => {
       state.user = {};
       state.errors = null;
       localStorage.removeItem("accessToken");
@@ -101,16 +82,14 @@ export const authSlice = createSlice({
       state.isAuthenticating = false;
     },
 
-    [populateUser.pending]: (state, action) => {
-      state.isPopulating = true;
-    },
+    [populateUser.pending]: (state, action) => {},
     [populateUser.fulfilled]: (state, action) => {
-      state.isPopulating = false;
-      const { user } = action.payload.data;
+      const { user, accessToken } = action.payload.data;
       state.user = user;
+      state.accessToken = accessToken;
+      console.log({ accessToken });
     },
     [populateUser.rejected]: (state, action) => {
-      state.isPopulating = false;
       state.errors = action.error.message;
       localStorage.removeItem("accessToken");
     },
@@ -132,9 +111,10 @@ export const authSlice = createSlice({
   },
 });
 
-export const { GuestLogout } = authSlice.actions;
+export const { logout } = authSlice.actions;
 
 export const getUser = (state) => state.auth.user;
+export const getAccessToken = (state) => state.auth.accessToken;
 export const getError = (state) => state.auth.errors;
 
 export default authSlice.reducer;

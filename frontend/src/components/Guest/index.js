@@ -1,28 +1,22 @@
 import React, { useState } from "react";
 import Container from "../Container";
-import { NavLink } from "react-router-dom";
-import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { guestLogin } from "../../store/modules/auth/reducers";
+import AuthLinks from "../AuthLinks";
 
-const Login = () => {
+const Guest = () => {
   const [name, setName] = useState("");
   const isAuthenticating = useSelector((state) => state.auth.isAuthenticating);
 
   const dispatch = useDispatch();
-  const history = useHistory();
 
   const canSubmit = name && !isAuthenticating;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     try {
       const response = await dispatch(guestLogin({ username: name }));
       console.log(unwrapResult(response));
-      setName("");
-      history.push("/");
     } catch (error) {
       console.log("failed to login the guest- Try again! ");
     }
@@ -32,7 +26,7 @@ const Login = () => {
     <div className="home">
       <Container>
         <h1>WHO'S WHO?</h1>
-        <form className="home__details" onSubmit={handleSubmit}>
+        <div className="home__details">
           <div>
             <label htmlFor="name">Your Name: </label>
             <input
@@ -44,18 +38,21 @@ const Login = () => {
             ></input>
           </div>
           <div>
-            <button type="submit" disabled={!canSubmit}>
+            <button
+              type="submit"
+              onClick={handleSubmit}
+              disabled={!canSubmit}
+              className="button"
+            >
               {isAuthenticating ? "loading.." : "PLay As Guest"}
             </button>
           </div>
-        </form>
+        </div>
 
-        <NavLink to="/register">Register</NavLink>
-        <NavLink to="/login">Login</NavLink>
-        <NavLink to="/guest">Play As Guest</NavLink>
+        <AuthLinks />
       </Container>
     </div>
   );
 };
 
-export default Login;
+export default Guest;

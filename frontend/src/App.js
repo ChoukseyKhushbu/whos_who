@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./styles/global.scss";
 
 import { Switch, Route, Redirect } from "react-router-dom";
@@ -7,36 +7,38 @@ import Room from "./components/Room";
 import Register from "./components/Register";
 import Guest from "./components/Guest";
 import Login from "./components/Login";
-import { getUser, populateUser } from "./store/modules/auth/reducers";
+import {
+  getAccessToken,
+  getUser,
+  populateUser,
+} from "./store/modules/auth/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 
 function App() {
+  const [isPopulated, setIsPopulated] = useState(false);
   const dispatch = useDispatch();
-  const isPopulating = useSelector((state) => state.auth.isPopulating);
 
   useEffect(() => {
-    console.log("useEffect");
     const fetchUser = async () => {
-      console.log("fetchUser");
       try {
         const accessToken = localStorage.getItem("accessToken");
         if (accessToken) {
-          const response = await dispatch(populateUser({ accessToken }));
+          const response = await dispatch(populateUser());
           // const Unwrapped = unwrapResult(response);
         }
       } catch (error) {
         console.log("in error");
         console.log(error);
       }
+      setIsPopulated(true);
     };
     fetchUser();
   }, [dispatch]);
 
   return (
     <div className="App">
-      <h1>isPopulating: {isPopulating.toString()}</h1>
-      {isPopulating ? (
+      {!isPopulated ? (
         "loading.."
       ) : (
         <Switch>
@@ -62,7 +64,8 @@ function App() {
 }
 
 function PrivateRoute({ children, ...rest }) {
-  const accessToken = localStorage.getItem("accessToken");
+  const accessToken = useSelector(getAccessToken);
+
   return (
     <Route
       {...rest}
@@ -87,13 +90,13 @@ function AuthRoute({ children, ...rest }) {
   return (
     <Route
       {...rest}
-      render={({ location }) =>
-        Object.keys(user).length > 0 ? (
-          <Redirect to={{ pathname: "/", state: { from: location } }} />
+      render={({ location }) => {
+        return Object.keys(user).length > 0 ? (
+          <Redirect to={location.state?.from.pathname || "/"} />
         ) : (
           children
-        )
-      }
+        );
+      }}
     />
   );
 }
