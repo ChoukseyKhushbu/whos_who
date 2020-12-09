@@ -1,0 +1,34 @@
+@import "../../styles/setup/variables";
+
+body {
+  text-align: center;
+}
+.inputField {
+  height: 3.5em;
+  border-radius: 0.4em;
+  padding-left: 15px;
+  color: $font-color;
+  background-color: $secondary-background-color;
+  border: none;
+  &:focus {
+    outline: none;
+  }
+}
+.button {
+  padding: 1.1em 1.5em;
+  border-radius: 0.4em;
+  color: $primary-color;
+  background-color: $font-color;
+}
+.home__details {
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+}
+h1 {
+  font-family: "Pacifico";
+  font-size: 4em;
+}
+a {
+  display: none;
+}

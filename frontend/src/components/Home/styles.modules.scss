@@ -1,0 +1,45 @@
+@import "../../styles/setup/variables";
+
+h2 {
+  font-size: 3em;
+  font-family: "Pacifico";
+}
+.home {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 100px;
+  p.heading {
+    font-family: "Pacifico";
+    font-size: 2em;
+  }
+  & > div {
+    background-color: $secondary-background-color;
+    border-radius: 20px;
+  }
+  .details {
+    padding-bottom: 20px;
+  }
+  .instructions {
+    padding: 0 30px;
+    text-align: left;
+    p {
+      line-height: 1.5;
+      //   margin: 0;
+    }
+  }
+  .button {
+    font-family: "Pacifico";
+    padding: 0.4em 1em;
+    font-size: 1.5em;
+    // font-weight: bold;
+  }
+}
+.cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  button {
+    min-width: 185px;
+    margin: 15px 0;
+  }
+}
