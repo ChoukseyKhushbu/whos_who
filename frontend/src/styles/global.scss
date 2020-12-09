@@ -10,6 +10,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  // background-image: url(../assets/whoswhoBG.png);
 }
 
 code {
@@ -18,33 +19,15 @@ code {
 }
 
 .App {
-  padding-top: 100px;
-  min-height: 100vh;
+  padding-top: 70px;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   position: relative;
-  background-color: $background-color;
+  background-color: $primary-background-color;
   color: $font-color;
   align-items: center;
-}
-
-.home {
-  &__details {
-    display: flex;
-    flex-direction: column;
-
-    & > div {
-      margin-bottom: 2em;
-    }
-    label {
-      margin-right: 1em;
-    }
-    .buttons {
-      button {
-        margin-right: 1em;
-      }
-    }
-  }
+  box-sizing: border-box;
 }
 
 .App-logo {
@@ -59,7 +42,7 @@ code {
 }
 
 .App-header {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { guestLogin } from "../../store/modules/auth/reducers";
 import AuthLinks from "../AuthLinks";
-
+import "./styles.modules.scss";
 const Guest = () => {
   const [name, setName] = useState("");
   const isAuthenticating = useSelector((state) => state.auth.isAuthenticating);
@@ -23,35 +23,34 @@ const Guest = () => {
   };
 
   return (
-    <div className="home">
-      <Container>
-        <h1>WHO'S WHO?</h1>
-        <div className="home__details">
-          <div>
-            <label htmlFor="name">Your Name: </label>
-            <input
-              type="text"
-              name="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoComplete="off"
-            ></input>
-          </div>
-          <div>
-            <button
-              type="submit"
-              onClick={handleSubmit}
-              disabled={!canSubmit}
-              className="button"
-            >
-              {isAuthenticating ? "loading.." : "PLay As Guest"}
-            </button>
-          </div>
+    <Container>
+      <h1>WHO'S WHO?</h1>
+      <div className="home__details" style={{ paddingTop: "50px" }}>
+        <div>
+          <input
+            className="inputField"
+            type="text"
+            name="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoComplete="off"
+            placeholder="Your Name"
+          ></input>
         </div>
+        <div>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className="button"
+          >
+            {isAuthenticating ? "loading.." : "Play As Guest"}
+          </button>
+        </div>
+      </div>
 
-        <AuthLinks />
-      </Container>
-    </div>
+      <AuthLinks />
+    </Container>
   );
 };
 

@@ -1,24 +1,139 @@
-.lobby {
-  //   height: 200px;
-  width: 500px;
-  padding: 10px 20px;
-  box-sizing: border-box;
-  border: 2px solid gray;
-  margin-bottom: 20px;
+@import "../../styles/setup/variables";
+
+.App {
+  padding-top: 30px;
+}
+p.heading {
+  font-family: "Pacifico";
+  font-size: 1.75em;
+  text-align: left;
 }
 
-h3 {
-  margin: 0;
-  text-align: center;
-}
+.room {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  min-height: 600px;
+  .main {
+    display: grid;
+    grid-template-rows: 0.5fr 1.4fr 2fr;
+    gap: 20px;
 
-.game_options {
-  background-color: rgba(58, 40, 46, 0.548);
-  overflow: hidden;
-  & > div {
-    margin: 20px;
+    & > div {
+      padding: 0 20px;
+      border-radius: 8px;
+    }
+    .lobby {
+      background-color: $secondary-background-color;
+      text-align: left;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+    }
+    .game_options {
+      background-color: $secondary-background-color;
+      .dropdown {
+        margin: 30px 30px;
+        display: flex;
+        justify-content: space-evenly;
+      }
+      .button {
+        padding: 0.4em 1em;
+        font-weight: bold;
+      }
+      label {
+        margin-right: 20px;
+        font-size: 20px;
+      }
+      select {
+        // padding: 0.6em 0.6em;
+      }
+    }
   }
-  label {
-    padding-right: 10px;
+  .chat {
+    background-color: $secondary-background-color;
+    text-align: left;
+    padding-left: 10px;
+    border-radius: 8px;
+    // margin-bottom: 10px;
+    position: relative;
+    input {
+      position: absolute;
+      bottom: 10px;
+      height: 2.5em;
+      width: 90%;
+      border-radius: 0.4em;
+      padding-left: 15px;
+      color: $font-color;
+      // background-color: $secondary-background-color;
+      border: none;
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+}
+
+.LinkButton {
+  font-size: 1.2em;
+  border: 2px solid white;
+  padding: 0.8em 1.2em;
+  color: black;
+}
+
+.result_section {
+  display: flex;
+  flex-direction: column;
+}
+
+.questions {
+  background-color: $secondary-background-color;
+  font-size: 2em;
+  padding: 30px 0;
+  border-radius: 8px;
+  margin-bottom: 60px;
+}
+
+.optionList {
+  .options {
+    background-color: $secondary-background-color;
+    font-size: 1.25em;
+    padding: 10px 0;
+    cursor: pointer;
+  }
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  padding-bottom: 20px;
+}
+
+.NextQuesButton {
+  padding: 0.8em 1em;
+  width: fit-content;
+  border-radius: 8px;
+  margin-top: 50px;
+}
+.game {
+  display: flex;
+  flex-direction: column;
+}
+
+.result_section {
+  display: grid;
+  .options {
+    background-color: $secondary-background-color;
+    font-size: 1.25em;
+    width: 10em;
+    // height: 10em;
+    text-align: left;
+    padding-left: 10px;
+    padding-bottom: 10px;
+  }
+  li {
+    list-style-type: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background-color: gray;
+    text-align: center;
   }
 }

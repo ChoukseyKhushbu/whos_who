@@ -9,7 +9,7 @@ import {
 } from "../../store/modules/auth/reducers";
 import { createRoom } from "../../store/modules/room/reducers";
 import { unwrapResult } from "@reduxjs/toolkit";
-
+import "./styles.modules.scss";
 const Home = () => {
   const loggedUser = useSelector(getUser);
   const dispatch = useDispatch();
@@ -25,7 +25,7 @@ const Home = () => {
       let response = await dispatch(createRoom({ accessToken }));
       response = unwrapResult(response);
       const { room } = response.data;
-      history.push(`/room/${room.id}`);
+      history.push(`/room/${room._id}`);
     } catch (error) {
       console.log("error in creating room");
       console.log(error);
@@ -33,20 +33,39 @@ const Home = () => {
   };
 
   return (
-    <div className="home">
-      <Container>
-        <div className="home__details">
-          <h1>Helloooww! {loggedUser ? loggedUser.username : ""}</h1>
-          <div className="buttons">
-            <button onClick={handleCreate}>Create Room</button>
-            {/* <button>Join Room</button> */}
+    <Container>
+      <h2>Who's Who?</h2>
+      <div className="home">
+        <div className="details">
+          <p className="heading">
+            Hello, {loggedUser ? loggedUser.username : ""}
+          </p>
+          <div className="cta">
+            <button className="button" onClick={handleCreate}>
+              Create Room
+            </button>
+            <button className="button">Join Room</button>
+            <button className="button" onClick={handleLogout}>
+              Logout
+            </button>
           </div>
-          <div>Instructions to play!</div>
-          <div>Your stats</div>
-          <button onClick={handleLogout}>Logout</button>
         </div>
-      </Container>
-    </div>
+        <div className="instructions">
+          <p className="heading">Instructions</p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate
+            esse consequatur cumque sit obcaecati, voluptate impedit mollitia
+            officiis iure sequi iste dolorem vel voluptas illum velit beatae hic
+            suscipit.Lorem ipsum dolor sit amet consectetur adipisicing elit.
+            Cupiditate esse consequatur cumque sit obcaecati, voluptate impedit
+            mollitia officiis iure sequi iste dolorem vel voluptas illum velit
+            beatae hic suscipit.Cupiditate esse consequatur cumque sit
+            obcaecati, voluptate impedit mollitia officiis iure sequi iste
+            dolorem vel voluptas illum velit beatae hic suscipit.
+          </p>
+        </div>
+      </div>
+    </Container>
   );
 };
 

@@ -15,10 +15,21 @@ export const joinRoomAPI = ({ roomID }) => {
 };
 
 export const startGameAPI = ({ roomID, noOfQues, category }) => {
-  console.log({ roomID, noOfQues, category });
-  return privateAPI.post(`${ENDPOINT}/game`, {
+  return privateAPI.post(`${ENDPOINT}/startgame`, {
     roomID,
     noOfQues,
     category,
+  });
+};
+
+export const submitAnswerAPI = ({ roomID, answer }) => {
+  return privateAPI.post(`${ENDPOINT}/submitanswer`, {
+    roomID,
+    answer,
+  });
+};
+export const nextQuestionAPI = ({ roomID, answer }) => {
+  return privateAPI.post(`${ENDPOINT}/submitanswer`, {
+    roomID,
   });
 };

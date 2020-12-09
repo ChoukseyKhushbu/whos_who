@@ -4,6 +4,8 @@ import {
   fetchRoomAPI,
   joinRoomAPI,
   startGameAPI,
+  submitAnswerAPI,
+  nextQuestionAPI,
 } from "../../../API/room";
 
 export const createRoom = createAsyncThunk("room/createRoom", async () => {
@@ -35,6 +37,22 @@ export const startGame = createAsyncThunk(
   }
 );
 
+export const submitAnswer = createAsyncThunk(
+  "room/submitAnswer",
+  async ({ roomID, answer }) => {
+    const response = await submitAnswerAPI({ roomID, answer });
+    return response.data;
+  }
+);
+
+export const nextQuestion = createAsyncThunk(
+  "room/nextQuestion",
+  async ({ roomID }) => {
+    const response = await nextQuestionAPI({ roomID });
+    return response.data;
+  }
+);
+
 export const roomSlice = createSlice({
   name: "room",
   initialState: {
@@ -46,9 +64,14 @@ export const roomSlice = createSlice({
   },
   reducers: {
     updateRoom: (state, action) => {
+      console.log("in update reducer -");
       console.log(action.payload);
-      let { players } = action.payload;
-      state.roomData.room = { ...state.roomData.room, players };
+      // let { players } = action.payload;
+      let players = action.payload.players.reduce(
+        (acc, player) => ({ ...acc, [player._id]: player }),
+        {}
+      );
+      state.roomData.room = { ...action.payload, players };
     },
   },
   extraReducers: {
@@ -58,7 +81,14 @@ export const roomSlice = createSlice({
     [createRoom.fulfilled]: (state, action) => {
       state.isCreating = false;
       const { room, isCreator, hasJoined } = action.payload.data;
+      room.players = room.players.reduce(
+        (acc, player) => ({ ...acc, [player._id]: player }),
+        {}
+      );
       state.roomData = { room, isCreator, hasJoined };
+      console.log("in createroom reducer - ");
+
+      console.log(state.roomData);
     },
     [createRoom.rejected]: (state, action) => {
       state.isCreating = false;
@@ -70,38 +100,41 @@ export const roomSlice = createSlice({
     [fetchRoom.fulfilled]: (state, action) => {
       state.isFetching = false;
       const { room, isCreator, hasJoined } = action.payload.data;
-
+      room.players = room.players.reduce(
+        (acc, player) => ({ ...acc, [player._id]: player }),
+        {}
+      );
       state.roomData = { room, isCreator, hasJoined };
-      state.gameStarted = room.questions.length > 0;
+      console.log("in fetchh room -----------");
+      console.log(state.roomData);
     },
     [fetchRoom.rejected]: (state, action) => {
       state.isFetching = false;
     },
 
-    [joinRoom.pending]: (state, action) => {
-      // state.isCreating = true;
-    },
+    [joinRoom.pending]: (state, action) => {},
     [joinRoom.fulfilled]: (state, action) => {
-      // state.isCreating = false;
       const { room, hasJoined } = action.payload.data;
+      room.players = room.players.reduce(
+        (acc, player) => ({ ...acc, [player._id]: player }),
+        {}
+      );
       state.roomData = { ...state.roomData, room, hasJoined };
     },
-    [joinRoom.rejected]: (state, action) => {
-      // state.isCreating = false;
-    },
+    [joinRoom.rejected]: (state, action) => {},
 
     [startGame.pending]: (state, action) => {
       state.isQuesFetching = true;
     },
     [startGame.fulfilled]: (state, action) => {
       state.isQuesFetching = false;
-      const { room } = action.payload.data;
-      state.roomData = { ...state.roomData, room };
-      state.gameStarted = room.questions.length > 0;
     },
     [startGame.rejected]: (state, action) => {
       state.isQuesFetching = false;
     },
+    [submitAnswer.pending]: (state, action) => {},
+    [submitAnswer.fulfilled]: (state, action) => {},
+    [submitAnswer.rejected]: (state, action) => {},
   },
 });
 
@@ -109,4 +142,52 @@ export const { updateRoom } = roomSlice.actions;
 
 export const getRoom = (state) => state.room.roomData;
 
+// export const getPlayersById = (state) => {
+//   let { roomData } = state.room;
+//   if (roomData.room) {
+//     let { players } = roomData.room;
+//     if (players) {
+//       return roomData.room.players.reduce(
+//         (acc, player) => ({ ...acc, [player._id]: player }),
+//         {}
+//       );
+//     }
+//   }
+//   return {};
+// };
+
+export const getPlayersAnswered = (state) => {
+  console.log("in playerAnswered selector -");
+  let arr = [];
+  let { roomData } = state.room;
+  console.log(roomData.room);
+  if (roomData.room) {
+    let { answers, currentQuesIndex } = roomData.room;
+    // if(answers && currentQuesIndex)
+    if (currentQuesIndex != null) {
+      let currQuesAns = answers[currentQuesIndex];
+      for (let option of Object.keys(currQuesAns)) {
+        console.log(option, currQuesAns[option]);
+        arr = [...arr, ...currQuesAns[option]];
+      }
+    }
+  }
+  console.log(arr);
+  return arr;
+};
+
+export const getAnsByOption = (state) => (option) => {
+  console.log("in ansByOption selector ---");
+  console.log(state);
+  console.log({ option });
+  let { roomData } = state.room;
+  let { answers, currentQuesIndex } = roomData.room;
+  if (roomData.room && currentQuesIndex) {
+    let currQuesAns = answers[currentQuesIndex];
+    console.log(currQuesAns[option]);
+    return currQuesAns[option];
+  } else {
+    return [];
+  }
+};
 export default roomSlice.reducer;
