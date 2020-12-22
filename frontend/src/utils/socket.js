@@ -9,12 +9,19 @@ socket.on("connect", () => {
 });
 
 function subscribeToRoom(cb) {
-  console.log("inside function");
   socket.on("roomChange", cb);
 }
 
-function subscribeToGame(cb) {
-  socket.on("startGame", cb);
+function subscribeToChat(cb) {
+  // socket.on("startGame", cb);
+  socket.on("chat", cb);
 }
 
-export { subscribeToRoom, subscribeToGame };
+function emitMessage({ message, player }) {
+  console.log("in emit message: ", message);
+  socket.emit("chat", {
+    message: message,
+    player: player,
+  });
+}
+export { subscribeToRoom, subscribeToChat, emitMessage };

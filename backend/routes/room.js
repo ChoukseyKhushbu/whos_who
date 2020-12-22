@@ -19,10 +19,24 @@ Router.get("/data/:roomID", verifyToken, async (req, res) => {
         });
       } else {
         if (room) {
+          const updatedRoom = {
+            id: room.id,
+            players: room.players,
+            category: room.category,
+            noOfQues: room.noOfQues,
+            questions: room.questions.length
+              ? [room.questions[room.currentQuesIndex]]
+              : room.questions,
+            currentQuesIndex: room.currentQuesIndex,
+            answers: room.answers.length
+              ? [room.answers[room.currentQuesIndex]]
+              : room.answers,
+            gameStarted: room.gameStarted,
+          };
           res.status(200).send({
             success: true,
             data: {
-              room: room,
+              room: updatedRoom,
               isCreator: userID == room.createdBy,
               hasJoined: room.players.some((player) => player._id == userID),
             },
@@ -112,14 +126,21 @@ Router.get("/join/:roomID", verifyToken, async (req, res) => {
     });
 });
 
-Router.post("/startgame", async (req, res) => {
+Router.post("/startgame", verifyToken, async (req, res) => {
   try {
     const { roomID, noOfQues, category } = req.body;
+    console.log(category);
     console.log({ roomID, noOfQues, category });
     const firstQues = await Question.aggregate()
       .match({ category: category })
       .sample(1);
     // const quesObjectIDs = questions.map((ques) => ques._id);
+    if (!firstQues.length) {
+      return res.status(404).send({
+        success: false,
+        message: "No Questions Found!",
+      });
+    }
     const quesObjectId = firstQues[0]._id;
 
     const room = await Room.findById(roomID).populate("players");
@@ -149,7 +170,6 @@ Router.post("/startgame", async (req, res) => {
       currentQuesIndex: room.currentQuesIndex,
       answers: room.answers,
       gameStarted: room.gameStarted,
-      something: room.something,
     };
 
     io.to("userRoom").emit("roomChange", updatedRoom);
@@ -177,7 +197,6 @@ Router.post("/submitanswer", verifyToken, async (req, res) => {
     const room = await Room.findById(roomID)
       .populate("players")
       .populate("questions");
-    console.log(room);
     if (!room.players.some((player) => player._id == userID)) {
       res.status(403).send({
         success: false,
@@ -191,16 +210,23 @@ Router.post("/submitanswer", verifyToken, async (req, res) => {
         });
       } else {
         room.answers[room.currentQuesIndex][answer].push(userID);
-        room.something = "something";
+        room.markModified("answers");
 
-        const newRoom = await room.save();
-        console.log(room.answers[0]);
-        console.log({ something: room.something });
-        console.log({ something: newRoom.something });
-        // console.log({ newRoom: newRoom.answers });
-        console.log(room);
-        console.log(newRoom);
-        io.to("userRoom").emit("roomChange", room);
+        await room.save();
+        console.log("in answer submit:");
+        console.log(room.answers[room.currentQuesIndex]);
+        const updatedRoom = {
+          id: room.id,
+          players: room.players,
+          category: room.category,
+          noOfQues: room.noOfQues,
+          questions: [room.questions[room.currentQuesIndex]],
+          currentQuesIndex: room.currentQuesIndex,
+          answers: [room.answers[room.currentQuesIndex]],
+          gameStarted: room.gameStarted,
+        };
+
+        io.to("userRoom").emit("roomChange", updatedRoom);
         return res.status(200).send({
           success: true,
           data: {
@@ -221,19 +247,20 @@ Router.post("/submitanswer", verifyToken, async (req, res) => {
 Router.post("/nextquestion", verifyToken, async (req, res) => {
   try {
     const { roomID } = req.body;
-    const room = await Room.findById(roomID);
+    const room = await Room.findById(roomID).populate("players");
     if (room.currentQuesIndex < room.noOfQues - 1) {
       const nextQues = await Question.aggregate()
-        .match({ category: category, _id: { $nin: room.questions } })
+        .match({ category: room.category, _id: { $nin: room.questions } })
         .sample(1);
+      console.log({ nextQues });
       const nextQuesID = nextQues[0]._id;
-      room.currentQuesIndex += 1;
+      room.currentQuesIndex = room.currentQuesIndex + 1;
       room.questions = [...room.questions, nextQuesID];
       let nextAns = room.players.reduce(
         (acc, player) => ({ ...acc, [player._id]: [] }),
         {}
       );
-      room.answers = [...answers, nextAns];
+      room.answers = [...room.answers, nextAns];
 
       await room.save();
       const updatedRoom = {
@@ -243,7 +270,7 @@ Router.post("/nextquestion", verifyToken, async (req, res) => {
         noOfQues: room.noOfQues,
         questions: nextQues,
         currentQuesIndex: room.currentQuesIndex,
-        answers: room.answers,
+        answers: [nextAns],
         gameStarted: room.gameStarted,
       };
       io.to("userRoom").emit("roomChange", updatedRoom);
@@ -254,6 +281,73 @@ Router.post("/nextquestion", verifyToken, async (req, res) => {
           room: room,
         },
         message: "Room Joined Successfully!",
+      });
+    } else {
+      res.status(400).send({
+        success: false,
+        message: "Provided number of questions have been asked!",
+      });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+Router.post("/updateOptions", verifyToken, async (req, res) => {
+  try {
+    const { roomID, noOfQues, category } = req.body;
+    const room = await Room.findByIdAndUpdate(
+      roomID,
+      { noOfQues: noOfQues, category: category },
+      { new: true, omitUndefined: true }
+    ).populate("players");
+    if (room) {
+      io.to("userRoom").emit("roomChange", room);
+      return res.status(200).send({
+        success: true,
+        data: {
+          room: room,
+        },
+        message: "Options updated Successfully!",
+      });
+    } else {
+      return res.status(404).send({
+        success: false,
+        message: "Room not Found",
+      });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+Router.post("/clearRoom", verifyToken, async (req, res) => {
+  const { roomID } = req.body;
+  try {
+    const room = await Room.findByIdAndUpdate(
+      roomID,
+      {
+        questions: [],
+        answers: [],
+        gameStarted: false,
+        currentQuesIndex: null,
+      },
+      { new: true }
+    ).populate("players");
+    if (room) {
+      io.to("userRoom").emit("roomChange", room);
+      return res.status(200).send({
+        success: true,
+        data: {
+          room: room,
+        },
+        message: "Options updated Successfully!",
       });
     }
   } catch (error) {

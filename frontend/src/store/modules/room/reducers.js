@@ -6,6 +6,8 @@ import {
   startGameAPI,
   submitAnswerAPI,
   nextQuestionAPI,
+  updateOptionsAPI,
+  clearRoomAPI,
 } from "../../../API/room";
 
 export const createRoom = createAsyncThunk("room/createRoom", async () => {
@@ -53,10 +55,28 @@ export const nextQuestion = createAsyncThunk(
   }
 );
 
+export const updateOptions = createAsyncThunk(
+  "room/updateOptions",
+  async ({ roomID, noOfQues, category }) => {
+    const response = await updateOptionsAPI({ roomID, noOfQues, category });
+    return response.data;
+  }
+);
+
+export const clearRoom = createAsyncThunk(
+  "room/clearRoom",
+  async ({ roomID }) => {
+    const response = await clearRoomAPI({ roomID });
+    return response.data;
+  }
+);
+
 export const roomSlice = createSlice({
   name: "room",
   initialState: {
-    roomData: {},
+    roomData: {
+      // room: { category: "General", noOfQues: 3 },
+    },
     isCreating: false,
     isFetching: false,
     isQuesFetching: false,
@@ -135,6 +155,12 @@ export const roomSlice = createSlice({
     [submitAnswer.pending]: (state, action) => {},
     [submitAnswer.fulfilled]: (state, action) => {},
     [submitAnswer.rejected]: (state, action) => {},
+    [updateOptions.pending]: (state, action) => {},
+    [updateOptions.fulfilled]: (state, action) => {},
+    [updateOptions.rejected]: (state, action) => {},
+    [clearRoom.pending]: (state, action) => {},
+    [clearRoom.fulfilled]: (state, action) => {},
+    [clearRoom.rejected]: (state, action) => {},
   },
 });
 
@@ -157,29 +183,22 @@ export const getRoom = (state) => state.room.roomData;
 // };
 
 export const getPlayersAnswered = (state) => {
-  console.log("in playerAnswered selector -");
   let arr = [];
   let { roomData } = state.room;
-  console.log(roomData.room);
   if (roomData.room) {
     let { answers, currentQuesIndex } = roomData.room;
     // if(answers && currentQuesIndex)
     if (currentQuesIndex != null) {
-      let currQuesAns = answers[currentQuesIndex];
+      let currQuesAns = answers[0];
       for (let option of Object.keys(currQuesAns)) {
-        console.log(option, currQuesAns[option]);
         arr = [...arr, ...currQuesAns[option]];
       }
     }
   }
-  console.log(arr);
   return arr;
 };
 
 export const getAnsByOption = (state) => (option) => {
-  console.log("in ansByOption selector ---");
-  console.log(state);
-  console.log({ option });
   let { roomData } = state.room;
   let { answers, currentQuesIndex } = roomData.room;
   if (roomData.room && currentQuesIndex) {

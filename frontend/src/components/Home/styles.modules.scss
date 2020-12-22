@@ -15,12 +15,12 @@ h2 {
   & > div {
     background-color: $secondary-background-color;
     border-radius: 20px;
+    padding: 0 30px;
   }
   .details {
     padding-bottom: 20px;
   }
   .instructions {
-    padding: 0 30px;
     text-align: left;
     p {
       line-height: 1.5;

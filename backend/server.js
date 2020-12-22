@@ -45,6 +45,15 @@ io.on("connection", (socket) => {
   console.log("Yay! A client connected!", socket.id);
 
   socket.join("userRoom");
+  socket.on("chat", function (data) {
+    io.sockets.emit("chat", data);
+  });
+
+  //listener for typing message
+
+  socket.on("typing", function (data) {
+    socket.broadcast.emit("typing", data);
+  });
 });
 
 const authRouter = require("./routes/auth");

@@ -22,7 +22,7 @@ Router.post("/login", (req, res) => {
             },
             process.env.JWT_SECRET,
             {
-              expiresIn: 60 * 60 * 24, // expires in 24 hours
+              expiresIn: 60 * 60 * 12, // expires in 24 hours
             }
           );
           res.status(200).json({
@@ -81,7 +81,7 @@ Router.post("/register", (req, res) => {
             },
             process.env.JWT_SECRET,
             {
-              expiresIn: 60 * 60 * 24, // expires in 24 hours
+              expiresIn: 60 * 60 * 12, // expires in 24 hours
             }
           );
           res.status(200).json({
@@ -131,7 +131,7 @@ Router.post("/guest", (req, res) => {
         },
         process.env.JWT_SECRET,
         {
-          expiresIn: 60 * 60 * 24, // expires in 24 hours
+          expiresIn: 60 * 60 * 12, // expires in 24 hours
         }
       );
       res.status(200).json({
@@ -168,7 +168,7 @@ Router.get("/populateUser", verifyToken, async (req, res) => {
         },
         process.env.JWT_SECRET,
         {
-          expiresIn: 60 * 60 * 24, // expires in 24 hours
+          expiresIn: 60 * 60 * 12, // expires in 24 hours
         }
       );
       res.status(200).send({

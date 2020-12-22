@@ -5,8 +5,8 @@ const roomSchema = mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   questions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }],
   currentQuesIndex: { type: Number, default: null },
-  category: { type: String, default: null },
-  noOfQues: { type: String, default: null },
+  category: { type: String, default: "General" },
+  noOfQues: { type: String, default: "3" },
   answers: [],
   gameStarted: { type: Boolean, default: false },
 });
@@ -22,8 +22,6 @@ roomSchema.post("findOneAndUpdate", async function () {
   // console.log("Emitting roomchange event.");
   // console.log(io);
   // io.emit("roomChange", "sending data");
-  console.log("update: ");
-  console.log(this);
 });
 
 module.exports = mongoose.model("Room", roomSchema);

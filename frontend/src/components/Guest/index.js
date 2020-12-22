@@ -24,7 +24,7 @@ const Guest = () => {
 
   return (
     <Container>
-      <h1>WHO'S WHO?</h1>
+      <h1>Who's Who?</h1>
       <div className="home__details" style={{ paddingTop: "50px" }}>
         <div>
           <input

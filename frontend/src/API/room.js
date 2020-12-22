@@ -29,7 +29,20 @@ export const submitAnswerAPI = ({ roomID, answer }) => {
   });
 };
 export const nextQuestionAPI = ({ roomID, answer }) => {
-  return privateAPI.post(`${ENDPOINT}/submitanswer`, {
+  return privateAPI.post(`${ENDPOINT}/nextquestion`, {
+    roomID,
+  });
+};
+
+export const updateOptionsAPI = ({ roomID, category, noOfQues }) => {
+  return privateAPI.post(`${ENDPOINT}/updateOptions`, {
+    roomID,
+    noOfQues,
+    category,
+  });
+};
+export const clearRoomAPI = ({ roomID }) => {
+  return privateAPI.post(`${ENDPOINT}/clearRoom`, {
     roomID,
   });
 };
