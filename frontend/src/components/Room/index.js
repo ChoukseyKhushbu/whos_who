@@ -101,7 +101,7 @@ const Room = () => {
               <div className="game">
                 <p className="questions">{room.questions[0].question}</p>
                 <div className="optionList">
-                  {Object.entries(room.players).map(([id, player]) => (
+                  {/* {Object.entries(room.players).map(([id, player]) => (
                     <div
                       className="options"
                       disabled={optedAnswer}
@@ -111,7 +111,38 @@ const Room = () => {
                     >
                       {player.username}
                     </div>
-                  ))}
+                  ))} */}
+
+                  {/* TYPE A */}
+
+                  {true &&
+                    Object.keys(room.answers[room.currentQuesIndex]).map(
+                      (playerID) => (
+                        <div
+                          className="options"
+                          disabled={optedAnswer}
+                          key={playerID}
+                          onClick={() => handleAnswer(playerID)}
+                        >
+                          {room.players[playerID].username}
+                        </div>
+                      )
+                    )}
+
+                  {/* TYPE B */}
+
+                  {/* {false && Object.keys(room.answers[room.currentQuesIndex]).map(
+                    (option) => (
+                      <div
+                        className="options"
+                        disabled={optedAnswer}
+                        key={option}
+                        onClick={() => handleAnswer(option)}
+                      >
+                        {option}
+                      </div>
+                    )
+                  )} */}
                 </div>
                 {isCreator && (
                   <button
