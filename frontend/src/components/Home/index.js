@@ -10,6 +10,7 @@ import {
 import { createRoom } from "../../store/modules/room/reducers";
 import { unwrapResult } from "@reduxjs/toolkit";
 import "./styles.modules.scss";
+
 const Home = () => {
   const loggedUser = useSelector(getUser);
   const dispatch = useDispatch();

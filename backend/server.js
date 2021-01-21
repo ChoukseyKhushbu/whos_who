@@ -44,9 +44,13 @@ global.io = require("socket.io")(server, {
 io.on("connection", (socket) => {
   console.log("Yay! A client connected!", socket.id);
 
-  socket.join("userRoom");
-  socket.on("chat", function (data) {
-    io.sockets.emit("chat", data);
+  // socket.join("userRoom");
+  socket.on("joinRoom", function (roomID) {
+    socket.join(roomID);
+    console.log("Hurray! you joined socket room,", roomID);
+    socket.on("chat", function (data) {
+      io.in(roomID).emit("chat", data);
+    });
   });
 
   //listener for typing message

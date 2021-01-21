@@ -7,10 +7,13 @@ export const chatSlice = createSlice({
   },
   reducers: {
     addMessage: (state, action) => {
-      const { message, player } = action.payload;
+      const { message, playerName, playerID, time } = action.payload;
       console.log("in add message reducer");
       console.log(action.payload);
-      state.messages = [...state.messages, { player, message }];
+      state.messages = [
+        ...state.messages,
+        { playerName, playerID, message, time },
+      ];
     },
   },
 });

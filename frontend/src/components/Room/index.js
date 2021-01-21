@@ -12,33 +12,40 @@ import {
   nextQuestion,
   clearRoom,
 } from "../../store/modules/room/reducers";
-import { addMessage } from "../../store/modules/chat/reducers";
 import Container from "../Container";
-import { subscribeToRoom, subscribeToChat } from "../../utils/socket";
+import { subscribeToRoom, joinSocketRoom } from "../../utils/socket";
 import "./styles.modules.scss";
 import { getUser } from "../../store/modules/auth/reducers";
 import WaitingRoom from "../WaitingRoom";
 import Chat from "../Chat";
+
 const Room = () => {
   const roomData = useSelector(getRoom);
   const user = useSelector(getUser);
   const isFetching = useSelector((state) => state.room.isFetching);
   const playersAnswered = useSelector(getPlayersAnswered);
   const ansByOption = useSelector(getAnsByOption);
+
   const dispatch = useDispatch();
   const { roomID } = useParams();
   const { room, isCreator, hasJoined } = roomData;
 
   const [optedAnswer, setoptedAnswer] = useState(null);
   useEffect(() => {
-    console.log("subscribe to room called");
+    console.warn("subscribeToRoom");
     subscribeToRoom((room) => {
       console.log("in Room component use effect- ");
       console.log(room);
       //updateRoom() to update the room in place without network request
       dispatch(updateRoom(room));
     });
-  }, [dispatch, roomID]);
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (hasJoined) {
+      joinSocketRoom({ roomID });
+    }
+  }, [hasJoined, roomID]);
 
   useEffect(() => {
     if (!Object.keys(roomData).length) {
@@ -80,10 +87,6 @@ const Room = () => {
       </>
     );
   }
-
-  // if (Number(room.currentQuesIndex) === room.noOfQues - 1) {
-  //   dispatch(clearRoom());
-  // }
   return !room ? (
     <h1>Room Not Found</h1>
   ) : (

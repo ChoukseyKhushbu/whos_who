@@ -1,0 +1,109 @@
+@import "../../styles/setup/variables";
+
+.chat {
+  background-color: $secondary-background-color;
+  overflow: hidden;
+  text-align: left;
+  padding: 10px 10px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  .chat_window {
+    overflow: auto;
+    flex: 2;
+    color: $font-color;
+
+    .message {
+      &_box {
+        display: flex;
+        margin: 5px 0;
+        &_right {
+          flex-direction: row-reverse;
+          .name {
+            margin-left: 10px;
+          }
+        }
+        &_left {
+          flex-direction: row;
+          .name {
+            margin-right: 10px;
+          }
+        }
+      }
+    }
+
+    .name {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      background-color: $font-color;
+      color: $primary-background-color;
+    }
+    .text {
+      background-color: $font-color;
+      color: $primary-background-color;
+      padding: 0.2em 0.4em;
+      font-size: 1.15em;
+      border-radius: 0.4em;
+      max-width: 200px;
+      overflow-wrap: break-word;
+    }
+
+    .player {
+      color: #e5e5e5b5;
+      margin: 10px 2px;
+    }
+  }
+
+  form {
+    position: relative;
+
+    input {
+      border-radius: 0.4em;
+      padding: 10px 40px 10px 15px;
+      color: $placeholder-color;
+      border: none;
+      width: 100%;
+      box-sizing: border-box;
+      &:focus {
+        outline: none;
+      }
+    }
+
+    .sendMessage {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      background-color: transparent;
+      border: 0 none transparent;
+      transform: translateY(-50%);
+    }
+  }
+  .lock-bg {
+    background-color: rgba(26, 29, 41, 0.9);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    p {
+      font-family: "Pacifico";
+      font-size: 1.25em;
+    }
+    svg {
+      height: 80px;
+      width: 80px;
+      fill: $font-color;
+    }
+  }
+}

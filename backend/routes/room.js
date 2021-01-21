@@ -115,7 +115,7 @@ Router.get("/join/:roomID", verifyToken, async (req, res) => {
           //   hasJoined: true,
           // };
           // Emitting event to display new joined user for every player
-          io.to("userRoom").emit("roomChange", room);
+          io.in(roomID).emit("roomChange", room);
         } else {
           res.status(404).send({
             success: true,
@@ -172,7 +172,7 @@ Router.post("/startgame", verifyToken, async (req, res) => {
       gameStarted: room.gameStarted,
     };
 
-    io.to("userRoom").emit("roomChange", updatedRoom);
+    io.in(roomID).emit("roomChange", updatedRoom);
 
     return res.status(200).send({
       success: true,
@@ -213,8 +213,6 @@ Router.post("/submitanswer", verifyToken, async (req, res) => {
         room.markModified("answers");
 
         await room.save();
-        console.log("in answer submit:");
-        console.log(room.answers[room.currentQuesIndex]);
         const updatedRoom = {
           id: room.id,
           players: room.players,
@@ -226,7 +224,7 @@ Router.post("/submitanswer", verifyToken, async (req, res) => {
           gameStarted: room.gameStarted,
         };
 
-        io.to("userRoom").emit("roomChange", updatedRoom);
+        io.in(roomID).emit("roomChange", updatedRoom);
         return res.status(200).send({
           success: true,
           data: {
@@ -273,7 +271,7 @@ Router.post("/nextquestion", verifyToken, async (req, res) => {
         answers: [nextAns],
         gameStarted: room.gameStarted,
       };
-      io.to("userRoom").emit("roomChange", updatedRoom);
+      io.in(roomID).emit("roomChange", updatedRoom);
 
       return res.status(200).send({
         success: true,
@@ -305,7 +303,7 @@ Router.post("/updateOptions", verifyToken, async (req, res) => {
       { new: true, omitUndefined: true }
     ).populate("players");
     if (room) {
-      io.to("userRoom").emit("roomChange", room);
+      io.in(roomID).emit("roomChange", room);
       return res.status(200).send({
         success: true,
         data: {
@@ -327,6 +325,49 @@ Router.post("/updateOptions", verifyToken, async (req, res) => {
   }
 });
 
+Router.post("/updatePlayers", verifyToken, async (req, res) => {
+  try {
+    let { roomID, playerID } = req.body;
+    Room.findByIdAndUpdate(
+      roomID,
+      { $pull: { players: playerID } },
+      { new: true }
+    )
+      .populate("players")
+      .populate("questions")
+      .exec(async function (err, room) {
+        if (err) {
+          return res.status(500).send({
+            success: false,
+            message: err.message,
+          });
+        } else {
+          if (delete room.answers[room.currentQuesIndex][playerID]) {
+            room.markModified("answers");
+            await room.save();
+            const returnedRoom = {
+              id: room.id,
+              players: room.players,
+              category: room.category,
+              noOfQues: room.noOfQues,
+              questions: [room.questions[room.currentQuesIndex]],
+              currentQuesIndex: room.currentQuesIndex,
+              answers: [room.answers[room.currentQuesIndex]],
+              gameStarted: room.gameStarted,
+            };
+            io.in(roomID).emit("roomChange", returnedRoom);
+          } else {
+            console.log("player not removed!");
+          }
+        }
+      });
+  } catch (error) {
+    return res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 Router.post("/clearRoom", verifyToken, async (req, res) => {
   const { roomID } = req.body;
   try {
@@ -341,7 +382,7 @@ Router.post("/clearRoom", verifyToken, async (req, res) => {
       { new: true }
     ).populate("players");
     if (room) {
-      io.to("userRoom").emit("roomChange", room);
+      io.in(roomID).emit("roomChange", room);
       return res.status(200).send({
         success: true,
         data: {

@@ -27,6 +27,9 @@ const WaitingRoom = ({ roomID }) => {
 
   const changeOptions = async (e) => {
     console.log("in changeOPtions fnction");
+    if (!isCreator) {
+      return;
+    }
     switch (e.target.name) {
       case "category":
         let category = e.target.value;
@@ -84,7 +87,13 @@ const WaitingRoom = ({ roomID }) => {
             <button
               className="button"
               onClick={handleStart}
-              disabled={!(room.category && room.noOfQues)}
+              disabled={
+                !(
+                  room.category &&
+                  room.noOfQues &&
+                  Object.keys(room.players).length > 1
+                )
+              }
             >
               Start Game
             </button>

@@ -5,6 +5,8 @@ import { getUser } from "../../store/modules/auth/reducers";
 import { getRoom, joinRoom } from "../../store/modules/room/reducers";
 
 import { useSelector, useDispatch } from "react-redux";
+import "./styles.modules.scss";
+import classNames from "classnames";
 
 const Chat = ({ roomID }) => {
   const [chatMessage, setChatMessage] = useState("");
@@ -17,10 +19,11 @@ const Chat = ({ roomID }) => {
   const { hasJoined } = roomData;
 
   useEffect(() => {
+    console.warn("subscribetochat");
     subscribeToChat(function (data) {
-      let { message, player } = data;
+      let { message, playerName, playerID, time } = data;
       console.log("in useeffect of message", message);
-      dispatch(addMessage({ message, player }));
+      dispatch(addMessage({ message, playerName, playerID, time }));
     });
   }, [dispatch]);
 
@@ -31,8 +34,10 @@ const Chat = ({ roomID }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     let message = chatMessage;
-    let player = user.username;
-    emitMessage({ message, player });
+    let playerName = user.username;
+    let playerID = user.id;
+    let time = Date.now();
+    emitMessage({ message, playerName, time, playerID });
     setChatMessage("");
   };
 
@@ -45,10 +50,29 @@ const Chat = ({ roomID }) => {
     <div className="chat">
       <p className="heading">Chat</p>
       <div className="chat_window">
-        {messages.map((m) => (
-          <p>
-            {m.player}: {m.message}
-          </p>
+        {messages.map((m, i) => (
+          <div key={m.time} className="message">
+            {(i === 0 || messages[i].playerID !== messages[i - 1].playerID) && (
+              <div
+                className="player"
+                style={{
+                  textAlign:
+                    messages[i].playerID === user.id ? "right" : "left",
+                }}
+              >
+                {m.playerName}
+              </div>
+            )}
+            <div
+              className={classNames("message_box", {
+                message_box_right: messages[i].playerID === user.id,
+                message_box_left: messages[i].playerID !== user.id,
+              })}
+            >
+              <div className="name">{m.playerName[0]}</div>
+              <div className="text">{m.message}</div>
+            </div>
+          </div>
         ))}
       </div>
       <form onSubmit={handleSubmit}>
@@ -63,7 +87,7 @@ const Chat = ({ roomID }) => {
         </button>
       </form>
       {!hasJoined && (
-        <div class="lock-bg" onClick={handleJoinOnClick}>
+        <div className="lock-bg" onClick={handleJoinOnClick}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <g fill="none">
               <path d="M0 0h24v24H0V0z" />

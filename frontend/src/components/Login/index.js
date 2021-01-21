@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import Container from "../Container";
-import { NavLink } from "react-router-dom";
-import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogin } from "../../store/modules/auth/reducers";
-import { unwrapResult } from "@reduxjs/toolkit";
 import AuthLinks from "../AuthLinks";
 
 const Login = () => {
