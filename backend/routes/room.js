@@ -24,13 +24,17 @@ Router.get("/data/:roomID", verifyToken, async (req, res) => {
             players: room.players,
             category: room.category,
             noOfQues: room.noOfQues,
-            questions: room.questions.length
-              ? [room.questions[room.currentQuesIndex]]
-              : room.questions,
+            // questions: room.questions.length
+            //   ? [room.questions[room.currentQuesIndex]]
+            //   : room.questions,
+            currentQuestion: room.questions.length
+              ? room.questions[room.currentQuesIndex]
+              : {},
             currentQuesIndex: room.currentQuesIndex,
-            answers: room.answers.length
-              ? [room.answers[room.currentQuesIndex]]
-              : room.answers,
+            // answers: room.answers.length
+            //   ? [room.answers[room.currentQuesIndex]]
+            //   : room.answers,
+            currentAnswer: room.answers[room.currentQuesIndex],
             gameStarted: room.gameStarted,
           };
           res.status(200).send({
@@ -166,14 +170,16 @@ Router.post("/startgame", verifyToken, async (req, res) => {
       players: room.players,
       category: room.category,
       noOfQues: room.noOfQues,
-      questions: firstQues,
+      currentQuestion: firstQues[0],
       currentQuesIndex: room.currentQuesIndex,
-      answers: room.answers,
+      // answers: room.answers,
+      currentAnswer: room.answers[room.currentQuesIndex],
       gameStarted: room.gameStarted,
     };
 
     io.in(roomID).emit("roomChange", updatedRoom);
 
+    // TODO: Check if data is required to send
     return res.status(200).send({
       success: true,
       data: {
@@ -218,13 +224,16 @@ Router.post("/submitanswer", verifyToken, async (req, res) => {
           players: room.players,
           category: room.category,
           noOfQues: room.noOfQues,
-          questions: [room.questions[room.currentQuesIndex]],
+          currentQuestion: room.questions[room.currentQuesIndex],
           currentQuesIndex: room.currentQuesIndex,
-          answers: [room.answers[room.currentQuesIndex]],
+          currentAnswer: room.answers[room.currentQuesIndex],
           gameStarted: room.gameStarted,
         };
 
         io.in(roomID).emit("roomChange", updatedRoom);
+
+        // TODO: Check if data is required to send
+
         return res.status(200).send({
           success: true,
           data: {
@@ -266,12 +275,14 @@ Router.post("/nextquestion", verifyToken, async (req, res) => {
         players: room.players,
         category: room.category,
         noOfQues: room.noOfQues,
-        questions: nextQues,
+        currentQuestion: nextQues[0],
         currentQuesIndex: room.currentQuesIndex,
-        answers: [nextAns],
+        currentAnswer: nextAns,
         gameStarted: room.gameStarted,
       };
       io.in(roomID).emit("roomChange", updatedRoom);
+
+      // TODO: Check if data is required to send
 
       return res.status(200).send({
         success: true,
@@ -325,12 +336,60 @@ Router.post("/updateOptions", verifyToken, async (req, res) => {
   }
 });
 
+function getPopulatedRoomData(roomID) {
+  Room.findById(roomID)
+    .populate("players")
+    .populate("questions")
+    .exec(function (err, room) {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: err.message,
+        });
+      } else {
+        if (room) {
+          const updatedRoom = {
+            id: room.id,
+            players: room.players,
+            category: room.category,
+            noOfQues: room.noOfQues,
+            questions: room.questions.length
+              ? [room.questions[room.currentQuesIndex]]
+              : room.questions,
+            currentQuesIndex: room.currentQuesIndex,
+            answers: room.answers.length
+              ? [room.answers[room.currentQuesIndex]]
+              : room.answers,
+            gameStarted: room.gameStarted,
+          };
+
+          return updatedRoom;
+          // res.status(200).send({
+          //   success: true,
+          //   data: {
+          //     room: updatedRoom,
+          //     isCreator: userID == room.createdBy,
+          //     hasJoined: room.players.some((player) => player._id == userID),
+          //   },
+          // });
+        } else {
+          // TODO: Throw error
+          // res.status(404).send({
+          //   success: true,
+          //   message: "Room Not Found",
+          // });
+        }
+      }
+    });
+  // return populatedData
+}
+
 Router.post("/updatePlayers", verifyToken, async (req, res) => {
   try {
     let { roomID, playerID } = req.body;
     Room.findByIdAndUpdate(
       roomID,
-      { $pull: { players: playerID } },
+      { $pull: { activePlayers: playerID } },
       { new: true }
     )
       .populate("players")
@@ -342,23 +401,25 @@ Router.post("/updatePlayers", verifyToken, async (req, res) => {
             message: err.message,
           });
         } else {
-          if (delete room.answers[room.currentQuesIndex][playerID]) {
-            room.markModified("answers");
-            await room.save();
-            const returnedRoom = {
-              id: room.id,
-              players: room.players,
-              category: room.category,
-              noOfQues: room.noOfQues,
-              questions: [room.questions[room.currentQuesIndex]],
-              currentQuesIndex: room.currentQuesIndex,
-              answers: [room.answers[room.currentQuesIndex]],
-              gameStarted: room.gameStarted,
-            };
-            io.in(roomID).emit("roomChange", returnedRoom);
-          } else {
-            console.log("player not removed!");
-          }
+          console.log("player removed!");
+          getPopulatedRoomData(roomID); //okay
+          // if (delete room.answers[room.currentQuesIndex][playerID]) {
+          //   room.markModified("answers");
+          //   await room.save();
+          //   const returnedRoom = {
+          //     id: room.id,
+          //     players: room.players,
+          //     category: room.category,
+          //     noOfQues: room.noOfQues,
+          //     questions: [room.questions[room.currentQuesIndex]],
+          //     currentQuesIndex: room.currentQuesIndex,
+          //     answers: [room.answers[room.currentQuesIndex]],
+          //     gameStarted: room.gameStarted,
+          //   };
+          //   io.in(roomID).emit("roomChange", returnedRoom);
+          // } else {
+          //   console.log("player not removed!");
+          // }
         }
       });
   } catch (error) {
@@ -382,7 +443,17 @@ Router.post("/clearRoom", verifyToken, async (req, res) => {
       { new: true }
     ).populate("players");
     if (room) {
-      io.in(roomID).emit("roomChange", room);
+      const updatedRoom = {
+        id: room.id,
+        players: room.players,
+        category: room.category,
+        noOfQues: room.noOfQues,
+        currentQuestion: {},
+        currentQuesIndex: null,
+        currentAnswer: {},
+        gameStarted: false,
+      }
+      io.in(roomID).emit("roomChange", updatedRoom);
       return res.status(200).send({
         success: true,
         data: {

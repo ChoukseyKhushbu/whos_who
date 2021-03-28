@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const roomSchema = mongoose.Schema({
   players: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  activePlayers: [{ type: String }],
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   questions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }],
   currentQuesIndex: { type: Number, default: null },

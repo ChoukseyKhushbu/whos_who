@@ -90,48 +90,48 @@ const Room = () => {
   return !room ? (
     <h1>Room Not Found</h1>
   ) : (
-    <Container>
-      <div className="room">
-        <div className={!room.questions.length > 0 ? "main" : "game"}>
-          <h2>Who's Who?</h2>
-          {!room.questions.length > 0 ? (
-            <WaitingRoom roomID={roomID} />
-          ) : playersAnswered.indexOf(user.id) === -1 ? (
-            room.questions?.length > 0 && (
-              <div className="game">
-                <p className="questions">{room.questions[0].question}</p>
-                <div className="optionList">
-                  {/* {Object.entries(room.players).map(([id, player]) => (
-                    <div
-                      className="options"
-                      disabled={optedAnswer}
-                      key={id}
-                      value={id}
-                      onClick={() => handleAnswer(id)}
-                    >
-                      {player.username}
-                    </div>
-                  ))} */}
+      <Container>
+        <div className="room">
+          <div className={room.currentQuesIndex === null ? "main" : "game"}>
+            <h2>Who's Who?</h2>
+            {room.currentQuesIndex === null ? (
+              <WaitingRoom roomID={roomID} />
+            ) : playersAnswered.indexOf(user.id) === -1 ? (
+              room.currentQuesIndex !== null && (
+                <div className="game">
+                  <p className="questions">{room.currentQuestion.question}</p>
+                  <div className="optionList">
+                    {/* {Object.entries(room.players).map(([id, player]) => (
+                      <div
+                        className="options"
+                        disabled={optedAnswer}
+                        key={id}
+                        value={id}
+                        onClick={() => handleAnswer(id)}
+                      >
+                        {player.username}
+                      </div>
+                    ))} */}
 
-                  {/* TYPE A */}
+                    {/* TYPE A */}
 
-                  {true &&
-                    Object.keys(room.answers[room.currentQuesIndex]).map(
-                      (playerID) => (
-                        <div
-                          className="options"
-                          disabled={optedAnswer}
-                          key={playerID}
-                          onClick={() => handleAnswer(playerID)}
-                        >
-                          {room.players[playerID].username}
-                        </div>
-                      )
-                    )}
+                    {true &&
+                      Object.keys(room.currentAnswer).map(
+                        (playerID) => (
+                          <div
+                            className="options"
+                            disabled={optedAnswer}
+                            key={playerID}
+                            onClick={() => handleAnswer(playerID)}
+                          >
+                            {room.players[playerID].username}
+                          </div>
+                        )
+                      )}
 
-                  {/* TYPE B */}
+                    {/* TYPE B */}
 
-                  {/* {false && Object.keys(room.answers[room.currentQuesIndex]).map(
+                    {/* {false && Object.keys(room.currentAnswer[room.currentQuesIndex]).map(
                     (option) => (
                       <div
                         className="options"
@@ -143,55 +143,55 @@ const Room = () => {
                       </div>
                     )
                   )} */}
+                  </div>
+                  {isCreator && (
+                    <button
+                      onClick={handleNextQuestion}
+                      disabled={playersAnswered.length !== room.players.length}
+                      className="NextQuesButton"
+                    >
+                      Next Question
+                    </button>
+                  )}
                 </div>
-                {isCreator && (
-                  <button
-                    onClick={handleNextQuestion}
-                    disabled={playersAnswered.length !== room.players.length}
-                    className="NextQuesButton"
-                  >
-                    Next Question
-                  </button>
+              )
+            ) : (
+                  <div className="result_section">
+                    <p className="questions">{room.currentQuestion.question}</p>
+                    {Object.keys(room.players).map((player) => (
+                      <div key={player} className="options">
+                        <p>{room.players[player].username}</p>
+                        {room.currentAnswer[player].map((playerOpted) => (
+                          <li key={playerOpted}>
+                            {room.players[playerOpted].username[0]}
+                          </li>
+                        ))}
+                      </div>
+                    ))}
+                    {isCreator && (
+                      <button
+                        onClick={
+                          room.currentQuesIndex === room.noOfQues - 1
+                            ? handleClearRoom
+                            : handleNextQuestion
+                        }
+                        disabled={
+                          playersAnswered.length !== Object.keys(room.players).length
+                        }
+                        className="NextQuesButton"
+                      >
+                        {room.currentQuesIndex === room.noOfQues - 1
+                          ? "Go to Waiting Room"
+                          : "Next Question"}
+                      </button>
+                    )}
+                  </div>
                 )}
-              </div>
-            )
-          ) : (
-            <div className="result_section">
-              <p className="questions">{room.questions[0].question}</p>
-              {Object.keys(room.players).map((player) => (
-                <div key={player} className="options">
-                  <p>{room.players[player].username}</p>
-                  {room.answers[0][player].map((playerOpted) => (
-                    <li key={playerOpted}>
-                      {room.players[playerOpted].username[0]}
-                    </li>
-                  ))}
-                </div>
-              ))}
-              {isCreator && (
-                <button
-                  onClick={
-                    room.currentQuesIndex === room.noOfQues - 1
-                      ? handleClearRoom
-                      : handleNextQuestion
-                  }
-                  disabled={
-                    playersAnswered.length !== Object.keys(room.players).length
-                  }
-                  className="NextQuesButton"
-                >
-                  {room.currentQuesIndex === room.noOfQues - 1
-                    ? "Go to Waiting Room"
-                    : "Next Question"}
-                </button>
-              )}
-            </div>
-          )}
+          </div>
+          <Chat roomID={roomID} />
         </div>
-        <Chat roomID={roomID} />
-      </div>
-    </Container>
-  );
+      </Container>
+    );
 };
 
 export default Room;

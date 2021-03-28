@@ -132,7 +132,7 @@ export const roomSlice = createSlice({
       state.isFetching = false;
     },
 
-    [joinRoom.pending]: (state, action) => {},
+    [joinRoom.pending]: (state, action) => { },
     [joinRoom.fulfilled]: (state, action) => {
       const { room, hasJoined } = action.payload.data;
       room.players = room.players.reduce(
@@ -141,7 +141,7 @@ export const roomSlice = createSlice({
       );
       state.roomData = { ...state.roomData, room, hasJoined };
     },
-    [joinRoom.rejected]: (state, action) => {},
+    [joinRoom.rejected]: (state, action) => { },
 
     [startGame.pending]: (state, action) => {
       state.isQuesFetching = true;
@@ -152,15 +152,15 @@ export const roomSlice = createSlice({
     [startGame.rejected]: (state, action) => {
       state.isQuesFetching = false;
     },
-    [submitAnswer.pending]: (state, action) => {},
-    [submitAnswer.fulfilled]: (state, action) => {},
-    [submitAnswer.rejected]: (state, action) => {},
-    [updateOptions.pending]: (state, action) => {},
-    [updateOptions.fulfilled]: (state, action) => {},
-    [updateOptions.rejected]: (state, action) => {},
-    [clearRoom.pending]: (state, action) => {},
-    [clearRoom.fulfilled]: (state, action) => {},
-    [clearRoom.rejected]: (state, action) => {},
+    [submitAnswer.pending]: (state, action) => { },
+    [submitAnswer.fulfilled]: (state, action) => { },
+    [submitAnswer.rejected]: (state, action) => { },
+    [updateOptions.pending]: (state, action) => { },
+    [updateOptions.fulfilled]: (state, action) => { },
+    [updateOptions.rejected]: (state, action) => { },
+    [clearRoom.pending]: (state, action) => { },
+    [clearRoom.fulfilled]: (state, action) => { },
+    [clearRoom.rejected]: (state, action) => { },
   },
 });
 
@@ -186,12 +186,12 @@ export const getPlayersAnswered = (state) => {
   let arr = [];
   let { roomData } = state.room;
   if (roomData.room) {
-    let { answers, currentQuesIndex } = roomData.room;
+    let { currentAnswer, currentQuesIndex } = roomData.room;
     // if(answers && currentQuesIndex)
     if (currentQuesIndex != null) {
-      let currQuesAns = answers[0];
-      for (let option of Object.keys(currQuesAns)) {
-        arr = [...arr, ...currQuesAns[option]];
+      // let currQuesAns = answers;
+      for (let option of Object.keys(currentAnswer)) {
+        arr = [...arr, ...currentAnswer[option]];
       }
     }
   }
